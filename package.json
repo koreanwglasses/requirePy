@@ -1,0 +1,9 @@
+{
+  "name": "require-py",
+  "version": "0.0.0",
+  "description": "Seamless interop between JavaScript and Python",
+  "main": "index.ts",
+  "repository": "https://github.com/koreanwglasses/requirePy.git",
+  "author": "koreanwglasses <koreanwglasses@gmail.com>",
+  "license": "MIT"
+}

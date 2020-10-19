@@ -31,10 +31,8 @@ export class LocalExchange {
   }
 }
 
-export class RemoteExchange {
-  resolve<T>(token: Token<T>): Promise<T> {
-    throw new Error("method not implemented");
-  }
+export interface RemoteExchange {
+  resolve<T>(token: Token<T>): Promise<T>;
 }
 
 const isLocal = (token: Token<unknown>): boolean =>
@@ -45,8 +43,10 @@ const isLocal = (token: Token<unknown>): boolean =>
     : isLocal(token.target);
 
 export class Exchange {
-  private localExchange: LocalExchange;
-  private remoteExchange: RemoteExchange;
+  constructor(
+    private localExchange: LocalExchange,
+    private remoteExchange: RemoteExchange
+  ) {}
 
   register: LocalExchange["register"] = (data) =>
     this.localExchange.register(data);

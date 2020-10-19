@@ -1,9 +1,19 @@
 export type DataToken = {
   type: "data";
-  id: string;
+  id: string | number;
   isLocal: boolean;
   isStatic: boolean;
 };
+
+export type ImportToken = {
+  type: "import";
+  isLocal: boolean;
+  moduleName: string;
+};
+export const importToken = (
+  moduleName: string,
+  isLocal = false
+): ImportToken => ({ type: "import", isLocal, moduleName });
 
 type TokenizeParameters<F> = F extends (...args: infer P) => unknown
   ? TokenizeAll<P>
@@ -30,6 +40,7 @@ export const getToken = <T, P extends keyof T>(
 
 export type Token<T> =
   | DataToken
+  | ImportToken
   | CallToken<(...args: unknown[]) => unknown>
   | GetToken<any, string | number | symbol>;
 type TokenizeAll<T> = { [K in keyof T]: Token<T[K]> };

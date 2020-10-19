@@ -1,7 +1,7 @@
 import { Exchange } from "./exchange";
 import { callToken, getToken, Token } from "./tokens";
 
-type PromiseProxy<T> = (T extends object
+export type PromiseProxy<T> = (T extends object
   ? { [K in keyof T]: PromiseProxy<T[K]> } & PromiseLike<T>
   : PromiseLike<T>) & { __promiseProxy: { token: Token<T> } };
 

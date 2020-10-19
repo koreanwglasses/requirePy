@@ -1,17 +1,20 @@
+import { Multiplexer } from "./multiplexer";
 import { DataToken, Token } from "./tokens";
 
 export class LocalExchange {
   private dataToTokens = new Map<unknown, DataToken>();
   private tokensToData = new Map<DataToken["id"], unknown>();
 
-  register<T>(data: T, isStatic = true): DataToken {
+  private nextId = 0;
+
+  register<T>(data: T, isStatic = true, id = this.nextId++): DataToken {
     if (this.dataToTokens.has(data)) {
       return this.dataToTokens.get(data);
     }
 
     const token: DataToken = {
       type: "data",
-      id: undefined,
+      id,
       isLocal: true,
       isStatic,
     };
@@ -31,22 +34,32 @@ export class LocalExchange {
   }
 }
 
-export interface RemoteExchange {
-  resolve<T>(token: Token<T>): Promise<T>;
+export class RemoteExchange {
+  constructor(private mux: Multiplexer<Token<unknown>, unknown>) {}
+
+  resolve<T>(token: Token<T>): Promise<T> {
+    return this.mux.request(token) as Promise<T>;
+  }
 }
 
 const isLocal = (token: Token<unknown>): boolean =>
-  token.type === "data"
+  token.type === "data" || token.type === "import"
     ? token.isLocal
     : token.type === "call"
     ? isLocal(token.func)
     : isLocal(token.target);
 
 export class Exchange {
-  constructor(
-    private localExchange: LocalExchange,
-    private remoteExchange: RemoteExchange
-  ) {}
+  private localExchange: LocalExchange;
+  private remoteExchange: RemoteExchange;
+  constructor(mux: Multiplexer<unknown, unknown>) {
+    this.localExchange = new LocalExchange();
+    this.remoteExchange = new RemoteExchange(mux);
+
+    mux.onChannelOpenListeners.add((channel) =>
+      channel.listeners.add((token: Token<unknown>) => this.resolve(token))
+    );
+  }
 
   register: LocalExchange["register"] = (data) =>
     this.localExchange.register(data);
@@ -55,6 +68,9 @@ export class Exchange {
     if (isLocal(token)) {
       if (token.type === "data") {
         return Promise.resolve(this.localExchange.resolve(token));
+      }
+      if (token.type === "import") {
+        throw new Error("not implemented");
       }
       if (token.type === "call") {
         const func = (await this.resolve(token.func)) as (

@@ -31,5 +31,5 @@ export const getToken = <T, P extends keyof T>(
 export type Token<T> =
   | DataToken
   | CallToken<(...args: unknown[]) => unknown>
-  | GetToken<any, any>;
+  | GetToken<any, string | number | symbol>;
 type TokenizeAll<T> = { [K in keyof T]: Token<T[K]> };

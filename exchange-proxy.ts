@@ -24,7 +24,7 @@ export const promiseProxy = <T>(exchange: Exchange, token: Token<T>) =>
     {
       get: (target, p: keyof T) => {
         if (p === "then") {
-          return (async () => {})().then;
+          return exchange.resolve<T>(token).then;
         }
         return promiseProxy(exchange, getToken(token, p));
       },

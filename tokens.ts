@@ -1,19 +1,19 @@
 export type DataToken = {
   type: "data";
   id: string | number;
-  isLocal: boolean;
+  source: "js"|"py";
   isStatic: boolean;
 };
 
 export type ImportToken = {
   type: "import";
-  isLocal: boolean;
+  source: "js"|"py";
   moduleName: string;
 };
 export const importToken = (
   moduleName: string,
-  isLocal = false
-): ImportToken => ({ type: "import", isLocal, moduleName });
+  source: "js"|"py"
+): ImportToken => ({ type: "import", source, moduleName });
 
 type TokenizeParameters<F> = F extends (...args: infer P) => unknown
   ? TokenizeAll<P>

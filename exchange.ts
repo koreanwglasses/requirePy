@@ -15,7 +15,7 @@ export class LocalExchange {
     const token: DataToken = {
       type: "data",
       id,
-      isLocal: true,
+      source: "js",
       isStatic,
     };
 
@@ -44,7 +44,7 @@ export class RemoteExchange {
 
 const isLocal = (token: Token<unknown>): boolean =>
   token.type === "data" || token.type === "import"
-    ? token.isLocal
+    ? token.source === "js"
     : token.type === "call"
     ? isLocal(token.func)
     : isLocal(token.target);

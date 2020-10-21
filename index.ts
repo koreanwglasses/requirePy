@@ -7,6 +7,6 @@ export const requirePy = (() => {
   let pythonExchange: Exchange = null;
   return <T>(moduleName: string): PromiseProxy<T> => {
     if (!pythonExchange) pythonExchange = spawnPythonExchange();
-    return promiseProxy(pythonExchange, importToken(moduleName));
+    return promiseProxy(pythonExchange, importToken(moduleName, "py"));
   };
 })();

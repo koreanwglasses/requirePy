@@ -1,18 +1,18 @@
 export type DataToken = {
   type: "data";
   id: string | number;
-  source: "js"|"py";
+  source: "js" | "py";
   isStatic: boolean;
 };
 
 export type ImportToken = {
   type: "import";
-  source: "js"|"py";
+  source: "js" | "py";
   moduleName: string;
 };
 export const importToken = (
   moduleName: string,
-  source: "js"|"py"
+  source: "js" | "py"
 ): ImportToken => ({ type: "import", source, moduleName });
 
 type TokenizeParameters<F> = F extends (...args: infer P) => unknown

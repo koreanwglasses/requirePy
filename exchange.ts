@@ -57,7 +57,14 @@ export class Exchange {
     this.remoteExchange = new RemoteExchange(mux);
 
     mux.onChannelOpenListeners.add((channel) =>
-      channel.listeners.add((token: Token<unknown>) => this.resolve(token))
+      channel.listeners.add((token: Token<unknown>) => {
+        if (!isLocal(token)) {
+          throw new Error(
+            `cannot fulfill request to resolve non-local token: ${token}`
+          );
+        }
+        channel.write(this.resolve(token));
+      })
     );
   }
 

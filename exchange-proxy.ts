@@ -1,9 +1,12 @@
 import { Exchange } from "./exchange";
 import { callToken, getToken, Token } from "./tokens";
 
-export type PromiseProxy<T> = (T extends object
-  ? { [K in keyof T]: PromiseProxy<T[K]> } & PromiseLike<T>
-  : PromiseLike<T>) & { __promiseProxy: { token: Token<T> } };
+export type PromiseProxy<T> = (T extends (...args: infer P) => infer R
+  ? (...args: P) => PromiseProxy<R>
+  : T extends object
+  ? { [K in keyof T]: PromiseProxy<T[K]> }
+  : unknown) &
+  PromiseLike<T> & { __promiseProxy: { token: Token<T> } };
 
 const isPromiseProxy = (x: unknown): x is PromiseProxy<unknown> =>
   typeof x === "object" && "__promiseProxy" in x;

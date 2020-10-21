@@ -72,15 +72,29 @@ export class Multiplexer<W, R = W> {
     this.readBuffer += chunk;
 
     const lines = this.readBuffer.split("\n");
-    lines.forEach((line) => {
+
+    while (lines.length > 0) {
+      const line = lines[0]; // grab next line in queue
+
+      // try parsing the message
       let msg: MultiplexerMessage<R>;
       try {
         msg = JSON.parse(line);
-      } catch {
-        return;
+      } catch (e) {
+        if (lines.length > 1) {
+          throw new Error(`cannot parse message "${line}": ${e}`);
+        } else {
+          // line may have been incomplete json message, wait for more
+          break;
+        }
       }
+
       this.processMessage(msg);
-    });
+
+      lines.unshift(); // remove line from queue
+    }
+
+    this.readBuffer = lines.join("\n");
   }
 
   private async write(data: MultiplexerMessage<W>) {
